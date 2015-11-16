@@ -3,9 +3,10 @@
 #import "Mixpanel.h"
 
 static NSString * const kMixpanelTimingPropertyKey = @"$duration";
+NSString *const ARMixpanelTrackedScreenEventName = @"ARMixpanelTrackedScreenEventName";
 
 @interface MixpanelProvider()
-    @property (nonatomic, readonly) Mixpanel *mixpanel;
+@property (nonatomic, readonly) Mixpanel *mixpanel;
 @end
 
 @implementation MixpanelProvider
@@ -59,19 +60,41 @@ static NSString * const kMixpanelTimingPropertyKey = @"$duration";
 }
 
 - (void)logTimingEvent:(NSString *)event withInterval:(NSNumber *)interval properties:(NSDictionary *)properties {
-    
+
     if (properties[kMixpanelTimingPropertyKey]) {
         NSString *warning = [NSString stringWithFormat:@"Properties for timing event '%@' contains a key that clashes with the key used for reporting the time: %@", event, kMixpanelTimingPropertyKey];
         NSLog(@"%@", warning);
         NSAssert(properties[kMixpanelTimingPropertyKey], @"%@", warning);
     }
-    
+
     NSMutableDictionary *mutableProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
     if (interval) {
         mutableProperties[kMixpanelTimingPropertyKey] = interval;
     }
-    
+
     [self event:event withProperties:mutableProperties];
+}
+
+- (void)didShowNewPageView:(NSString *)pageTitle withProperties:(NSDictionary *)properties {
+    NSDictionary *props;
+    if (properties.count > 0) {
+        NSMutableDictionary *merge = [properties mutableCopy];
+        merge[ARAnalyticalProviderNewPageViewEventScreenPropertyKey] = pageTitle;
+        props = [merge copy];
+    } else {
+        props = @{ ARAnalyticalProviderNewPageViewEventScreenPropertyKey: pageTitle };
+    }
+
+    NSString *eventName;
+    if (props[ARMixpanelTrackedScreenEventName]) {
+        eventName = props[ARMixpanelTrackedScreenEventName];
+        NSMutableDictionary *mutableDictionary = [props mutableCopy];
+        [mutableDictionary removeObjectForKey:ARMixpanelTrackedScreenEventName];
+        props = [mutableDictionary copy];
+    } else {
+        eventName = ARAnalyticalProviderNewPageViewEventName;
+    }
+    [self event:eventName withProperties:props];
 }
 
 - (void)createAlias:(NSString *)alias
