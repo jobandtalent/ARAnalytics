@@ -84,6 +84,7 @@
 + (void)setupAdobeWithData:(NSDictionary *)additionalData;
 + (void)setupInstallTrackerWithApplicationID:(NSString *)applicationID;
 + (void)setupAppseeWithAPIKey:(NSString *)key;
++ (void)setupMobileAppTrackerWithAdvertiserID:(NSString *)advertiserID conversionKey:(NSString *)conversionKey allowedEvents:(NSArray *)allowedEvents;
 
 /// Add a provider manually
 + (void)setupProvider:(ARAnalyticalProvider *)provider;
@@ -212,3 +213,6 @@ extern NSString * const ARKeenReadKey;
 extern NSString * const ARAdobeData;
 extern NSString * const ARInstallTrackerApplicationID;
 extern NSString * const ARAppseeAPIKey;
+extern NSString * const ARMobileAppTrackerAdvertiserID;
+extern NSString * const ARMobileAppTrackerConversionKey;
+extern NSString * const ARMobileAppTrackerAllowedEvents;
